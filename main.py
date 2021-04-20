@@ -29,6 +29,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+##CONFIGURE TABLE
 class User(UserMixin, db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
@@ -49,23 +50,17 @@ class BlogPost(db.Model):
     date = db.Column(db.String(250), nullable=False)
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
-
-    # ***************Parent Relationship*************#
     comments = relationship("Comment", back_populates="parent_post")
 
 
 class Comment(db.Model):
     __tablename__ = "comments"
     id = db.Column(db.Integer, primary_key=True)
-    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
-    comment_author = relationship("User", back_populates="comments")
-
-    # ***************Child Relationship*************#
     post_id = db.Column(db.Integer, db.ForeignKey("blog_posts.id"))
+    author_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     parent_post = relationship("BlogPost", back_populates="comments")
+    comment_author = relationship("User", back_populates="comments")
     text = db.Column(db.Text, nullable=False)
-
-
 db.create_all()
 
 
@@ -159,6 +154,8 @@ def show_post(post_id):
         db.session.commit()
 
     return render_template("post.html", post=requested_post, form=form, current_user=current_user)
+
+
 @app.route("/about")
 def about():
     return render_template("about.html", current_user=current_user)
